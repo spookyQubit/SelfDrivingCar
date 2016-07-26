@@ -20,11 +20,12 @@ This project focuses on making a remote control toy car to drive on it's own wit
 
 ### Acknowledgement
 
-* Ever since I heard Andrew Ng's lecture on machine learning where he mentions about [Alvin](https://www.youtube.com/watch?v=jet4vwPUfh8), I was fascinated to make an autonomous car myself, albeit a much smaller one!
-* A lot of the project was geting things to work which other have already don in some other way. This project was greatly inspired from a similar project by Wang Zheng's using openCV.
-* Kenny Fong for helping me with concepts in TCP/Ip connections. 
-* Sneha Rath for helping me a lot of setup and video.   
+* Ever since I heard Andrew Ng's lecture on machine learning where he mentions about [Alvin](https://www.youtube.com/watch?v=jet4vwPUfh8), I was fascinated to make an autonomous car myself. So here it is, albeit a much smaller one!
+* A lot of the project was putting things together from what others have already done in some way or another. This project was greatly inspired from a similar project by Wang Zheng who used openCV.
+* Kenny Fong for helping me with concepts in TCP/IP connections. 
+* Sneha Rath for helping me a lot with setup and video.   
 
 <p align="center">
   <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup.jpg" width="350"/>
+  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/car.jpeg" width="350"/>
 </p>
