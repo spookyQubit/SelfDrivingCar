@@ -3,17 +3,14 @@ import socket
 import struct
 from PIL import Image
 import numpy as np
-
-
 import pygame
 from pygame.locals import *
 import sys
 import serial
 import time
-
 import pickle
 import os
-
+#import sknn.mlp
 
 # The delay (in seconds) between successive direction commands
 # Note that this delay has to be more than the time for which
@@ -26,18 +23,19 @@ class CarHandler():
         pygame.init()
         self.serial_port = serial.Serial('/dev/ttyACM0', 115200)
         self.setDisplay = pygame.display.set_mode((400, 300))
-        self.directions = {  "FORWARD_COMMAND":        1
-                           , "BACKWARD_COMMAND":       2
-                           , "LEFT_COMMAND":           3
-                           , "RIGHT_COMMAND":          4
-                           , "FORWARD_RIGHT_COMMAND":  6
-                           , "FORWARD_LEFT_COMMAND":   7
-                           , "BACKWARD_RIGHT_COMMAND": 8
-                           , "BACKWARD_LEFT_COMMAND":  9
-                           , "INCORRECT_INPUT":       -1
-                           , "KEY_NOT_DOWN":          -2
-                           , "EXIT":                  -3
-                          }
+        self.directions = { "FORWARD_COMMAND":        1,
+                            "BACKWARD_COMMAND":       2,
+                            "LEFT_COMMAND":           3,
+                            "RIGHT_COMMAND":          4,
+                            "FORWARD_RIGHT_COMMAND":  6,
+                            "FORWARD_LEFT_COMMAND":   7,
+                            "BACKWARD_RIGHT_COMMAND": 8,
+                            "BACKWARD_LEFT_COMMAND":  9,
+                            "INCORRECT_INPUT":       -1,
+                            "KEY_NOT_DOWN":          -2,
+                            "EXIT":                  -3
+                            }
+
         self.directions_log_helper = {self.directions[k]: k for k in self.directions.keys()}
         self.valid_directions = [   self.directions["FORWARD_COMMAND"]
                                   , self.directions["FORWARD_RIGHT_COMMAND"]
@@ -136,17 +134,28 @@ class ImageStreamHandler():
             connection.close()
             self.server_socket.close()
 
-    def convert_image_dimensions(self, image_array):
-        rows = image_array.shape[0]
-        columns = image_array.shape[1]
-        rows_to_keep = 100 # this should be the same as what was used in training
-
-        temp_im = image_array[rows - rows_to_keep:,:]
-        temp_im = temp_im.reshape((1, rows_to_keep * columns)) # Can optimize
-        print temp_im.shape
-        return temp_im
+    def convert_image_dimensions(self, image_array, clf_name):
+        top_rows_to_discard = 20
+        height = 25
+        width = 40
+        if clf_name is 'lr':
+            ar_shape = (1, width*height)
+            return np.asarray(Image.fromarray(image_array[top_rows_to_discard:,:]).resize((width, height),
+                                                                                          Image.ANTIALIAS)).reshape(ar_shape)
+        elif clf_name is 'cnn':
+            #i = np.asarray(Image.fromarray(image_array[top_rows_to_discard:,:]).resize((width, height),
+            #                                                                              Image.ANTIALIAS))
+            #i = i.reshape((1,height, width))
+            #return i
+            return np.asarray(Image.fromarray(image_array[top_rows_to_discard:,:]).resize((width, height),
+                                                                                          Image.ANTIALIAS)).reshape(1, height, width)
 
     def self_drive(self, classifier):
+        clf = classifier['clf']
+        clf_name = classifier['name']
+
+        print clf_name
+
         # Accept a single connection and make a file-like object out of it
         connection = self.server_socket.accept()[0].makefile('rb')
         car_handler = CarHandler()
@@ -162,11 +171,12 @@ class ImageStreamHandler():
                 image_stream.seek(0)
                 image = Image.open(image_stream).convert('L')
                 print('Image is %dx%d' % image.size)
-                reshaped_array = self.convert_image_dimensions(np.asarray(image))
-                predicted_direction = classifier.predict(reshaped_array/255.0) #Division is for normalization
+                reshaped_array = self.convert_image_dimensions(np.asarray(image), clf_name)
+                print reshaped_array.shape
+                predicted_direction = clf.predict(reshaped_array/255.0) #Division is for normalization
 
                 print "predicted_direction = ", predicted_direction
-                car_handler.send_direction(predicted_direction[0])
+                car_handler.send_direction(predicted_direction[0,0])
                 time.sleep(DELAY)
         finally:
             connection.close()
@@ -174,16 +184,17 @@ class ImageStreamHandler():
 
 
 def store_images_and_directions(images_and_directions):
-    data_store_path_common = '/home/shantanu/PycharmProjects/RCCar/training_images/data'
+    #data_store_path_common = '/home/shantanu/PycharmProjects/RCCar/training_images/data'
+    data_store_path_common = '/home/shantanu/PycharmProjects/SelfDrivingCar/test_images/data'
     data_store_path = data_store_path_common
     data_set_count = 0
     while os.path.isfile(data_store_path):
-        with open(data_store_path,'wb') as f:
-            pickle.dump(images_and_directions, f)
         data_set_count += 1
         data_store_path = data_store_path_common + str(data_set_count)
         print data_set_count
         print data_store_path
+    with open(data_store_path,'wb') as f:
+            pickle.dump(images_and_directions, f)
     
 
 def generate_training_data():
@@ -192,43 +203,31 @@ def generate_training_data():
     store_images_and_directions({"Images": ish.list_of_images, "Directions": ish.list_of_directions})
 
 
-def manual_drive_car():
-    im_dir_path = '/home/shantanu/PycharmProjects/RCCar/training_images/data2'
-    images_and_directions = pickle.load( open( im_dir_path, "rb" ) )
-    #im = Image.fromarray(image_direction['Images'][1], 'L')
-    directions = images_and_directions["Directions"]
-    car_handler = CarHandler()
-    for d in directions:
-        car_handler.send_direction(d)
-        time.sleep(DELAY)
-
-
 def self_drive_car():
     print "SELF_DRIVE_CAR"
+
     # Get pickled classifier
-    lr_classifier_path = '/home/shantanu/PycharmProjects/RCCar/classifier_lr.pkl'
-    mlp_classifier_path = '/home/shantanu/PycharmProjects/RCCar/classifier_mlp.pkl'
-    f = open(lr_classifier_path, 'rb')
-    clf = pickle.load(f)
-    f.close()
+    lr_classifier_path = '/home/shantanu/PycharmProjects/SelfDrivingCar/lr_classifier.pkl'
+    cnn_classifier_path = '/home/shantanu/PycharmProjects/SelfDrivingCar/cnn_classifier.pkl'
+    with open(cnn_classifier_path, 'rb') as f:
+        clf = pickle.load(f)
+    classifier = {'name': 'cnn', 'clf': clf}
+
     ish = ImageStreamHandler()
-    ish.self_drive(clf)
+    ish.self_drive(classifier)
 
 
 options = {"GENERATE_TRAINING_DATA": generate_training_data,
-           "MANUAL_DRIVE_CAR": manual_drive_car,
            "SELF_DRIVE_CAR": self_drive_car}
 
 
 def main():
     # Select mode to be either
     # 1) "GENERATE_TRAINING_DATA"
-    # 2) "MANUAL_DRIVE_CAR"
-    # 3) "SELF_DRIVE_CAR"
-    # mode = "SELF_DRIVE_CAR"
+    # 2) "SELF_DRIVE_CAR"
 
-    mode = "GENERATE_TRAINING_DATA"
     #mode = "SELF_DRIVE_CAR"
+    mode = "GENERATE_TRAINING_DATA"
     options[mode]()
 
 
