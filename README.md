@@ -26,6 +26,6 @@ This project focuses on making a remote control toy car to drive on it's own wit
 * Sneha Rath for helping me a lot with setup and video.   
 
 <p align="center">
-  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup2.jpg" width="350"/>
-  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/car.jpeg" width="350"/>
+  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup_images/setup2.jpg" width="350"/>
+  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup_images/car.jpeg" width="350"/>
 </p>
