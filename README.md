@@ -27,7 +27,7 @@ This project focuses on making a remote control toy car to drive on it's own wit
 
 <p align="center">
   <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup2.jpg" width="350"/>
-  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/arduino_setup.jpeg" width="350"/>
+  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/arduino_setup.jpg" width="350"/>
   <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/car.jpeg" width="350"/>
-  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/car_drive.jpeg" width="350"/>
+  <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/car_drive.jpg" width="350"/>
 </p>
