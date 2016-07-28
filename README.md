@@ -30,3 +30,5 @@ This project focuses on using machine learning to make a remote control toy car 
   <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup_images/setup2.jpg" width="350"/>
   <img src="https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup_images/car.jpeg" width="350"/>
 </p>
+
+[![ScreenShot](https://github.com/spookyQubit/SelfDrivingCar/blob/master/setup_images/car.jpeg)](http://youtu.be/vt5fpE0bzSY)
