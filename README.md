@@ -1,7 +1,7 @@
 # SelfDrivingCar
 
 
-This project focuses on making a remote control toy car to drive on it's own without manual intervention. 
+This project focuses on using machine learning to make a remote control toy car to drive on it's own without manual intervention. 
 
 ### Basic desing of the project
 
@@ -9,12 +9,12 @@ This project focuses on making a remote control toy car to drive on it's own wit
 * Depending upon the input image, a classification model (logestic regression/convolutional neural network), running on the laptop, predicts the direction in which the car should move. 
 * This information is then transmitted from the laptop to the remote control of the car using an Arduino. 
 
-### Code Structre
+### Code Structure
 * Rccar.py : This is the main file of the project. This can be run in two modes
   * GENERATE_TRAINING_DATA : In this mode, the program stores the incoming images received from RaspberryPi and the corresponding direction which the car makes as a result of keyboard strokes made by the user, and transmits the input direction to Arduino. 
-  * SELF_DRIVE_CAR : In this mode, the code handles the incoming images from RaspberryPi, makes the prediction and transmits the predicted direction to Arduino.
-* learningModels.ipynb : This file deals with data analysis and selecting the classification model.
-* RaspberryPi -> pi_client.py : This file deals with sending images from RaspberryPi to the laptop. 
+  * SELF_DRIVE_CAR : The code handles the incoming images from RaspberryPi, makes the prediction and transmits the predicted direction to Arduino.
+* learningModels.ipynb : Deals with data analysis and selecting the classification model.
+* RaspberryPi -> pi_client.py : Sends images from RaspberryPi to the laptop. 
 
 * Arduino -> receivePyCommandAndExecute.ino : This file handles the input from the laptop for transmitting the directions to the remote control car.
 
